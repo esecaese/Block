@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Competencia Halterofilia - Clean</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --dark: #111827;
+            --light: #f3f4f6;
+            --tv-bg: #0f172a;
+            --tv-panel: #1e293b;
+            --tv-text: #f8fafc;
+            --gold: #fbbf24;
+        }
+
+        body { font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; padding: 0; background: var(--light); height: 100vh; overflow: hidden; }
+        
+        /* Utilidades */
+        .hidden { display: none !important; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .h-full { height: 100vh; }
+        .text-center { text-align: center; }
+        .w-full { width: 100%; }
+
+        /* --- SELECTOR DE MODO --- */
+        #selector { position: absolute; top:0; left:0; width:100%; height:100%; z-index:999; background: #000; display: flex; justify-content: center; align-items: center; gap: 20px; }
+        .mode-btn { padding: 20px 40px; font-size: 1.5rem; cursor: pointer; border: none; border-radius: 8px; font-weight: bold; transition: transform 0.2s; }
+        .mode-btn:hover { transform: scale(1.05); }
+
+        /* --- MODO OPERADOR (Móvil) --- */
+        #operator-view { background: #fff; height: 100%; overflow-y: auto; padding: 15px; box-sizing: border-box; }
+
+        /* Estilos Fase Registro */
+        .reg-list { list-style: none; padding: 0; margin-top: 20px; }
+        .reg-item { background: #f1f5f9; padding: 10px; margin-bottom: 5px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; }
+        .btn-start { background: var(--success); color: white; padding: 15px; width: 100%; font-size: 1.2rem; font-weight: bold; border: none; border-radius: 8px; margin-top: 20px; cursor: pointer; }
+        .btn-add { background: var(--primary); color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; }
+
+        /* Estilos Fase Competencia (Operador) */
+        .op-card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .lifter-highlight { border: 3px solid var(--primary); background: #eff6ff; text-align: center; }
+        .big-name { font-size: 1.8rem; font-weight: 800; margin: 0; color: var(--dark); }
+        .big-weight { font-size: 2.5rem; font-weight: 900; color: var(--primary); margin: 5px 0; }
+        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .btn-lg { padding: 20px; font-size: 1.2rem; font-weight: bold; border: none; border-radius: 8px; color: white; cursor: pointer; }
+        .btn-good { background: var(--success); }
+        .btn-bad { background: var(--danger); }
+        
+        .queue-item { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #eee; }
+
+        /* --- MODO TV (16:9 - 3 Columnas) --- */
+        #tv-view { 
+            background: var(--tv-bg); 
+            color: var(--tv-text); 
+            display: grid; 
+            grid-template-columns: 1fr 1fr 1.2fr; /* 3 Columnas: Ranking M, Ranking F, Tarima */
+            height: 100vh; 
+            box-sizing: border-box;
+        }
+
+        .tv-col { border-right: 2px solid #334155; display: flex; flex-direction: column; overflow: hidden; }
+        .tv-col:last-child { border-right: none; background: #0f172a; }
+
+        .tv-header { background: #1e293b; padding: 15px; text-align: center; font-size: 1.8rem; font-weight: bold; text-transform: uppercase; color: #94a3b8; border-bottom: 2px solid #334155; }
+        
+        /* Tablas de Ranking */
+        .rank-list { padding: 10px; }
+        .rank-row { display: flex; justify-content: space-between; padding: 15px 10px; border-bottom: 1px solid #334155; font-size: 1.5rem; align-items: center; }
+        .rank-pos { color: #94a3b8; font-weight: bold; width: 40px; }
+        .rank-name { flex: 1; font-weight: 600; }
+        .rank-val { color: var(--gold); font-weight: bold; }
+
+        /* Columna Tarima (Derecha) */
+        .stage-active { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #1e293b; margin: 10px; border-radius: 10px; border: 2px solid var(--gold); }
+        .stage-label { font-size: 1.5rem; color: #94a3b8; margin-bottom: 10px; letter-spacing: 2px; }
+        .stage-name { font-size: 3rem; font-weight: 900; line-height: 1.1; text-align: center; margin: 0; color: #fff; }
+        .stage-weight { font-size: 5rem; font-weight: bold; color: var(--gold); line-height: 1; margin: 10px 0; }
+        .stage-queue { flex: 1; padding: 10px; }
+        .queue-row { display: flex; justify-content: space-between; font-size: 1.4rem; padding: 10px; border-bottom: 1px solid #334155; color: #cbd5e1; }
+
+        /* --- MODAL --- */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; justify-content: center; align-items: center; z-index: 2000; }
+        .modal-content { background: white; padding: 25px; border-radius: 12px; width: 90%; max-width: 400px; text-align: center; }
+        .inp-weight { font-size: 2.5rem; width: 120px; text-align: center; border: 2px solid #ccc; border-radius: 8px; margin: 15px 0; }
+        .presets { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
+        .btn-pre { padding: 15px; border: 1px solid #ddd; background: #f8fafc; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1.1rem; }
+        .btn-pre:hover { background: #e2e8f0; }
+    </style>
+</head>
+<body>
+
+    <div id="selector">
+        <button class="mode-btn" onclick="initMode('tv')" style="background: var(--gold);">📺 MODO TV</button>
+        <button class="mode-btn" onclick="initMode('op')" style="background: #fff;">📱 MODO OPERADOR</button>
+    </div>
+
+    <div id="operator-view" class="hidden">
+        
+        <div id="phase-registration">
+            <h2 class="text-center">📋 Registro de Atletas</h2>
+            <div class="op-card">
+                <div style="display:grid; gap:10px;">
+                    <input type="text" id="reg-name" placeholder="Nombre del Atleta" style="padding:10px; font-size:1rem;">
+                    <select id="reg-gender" style="padding:10px; font-size:1rem;">
+                        <option value="M">Hombre</option>
+                        <option value="F">Mujer</option>
+                    </select>
+                    <input type="number" id="reg-weight" placeholder="Peso Inicial (kg)" style="padding:10px; font-size:1rem;">
+                    <button class="btn-add" onclick="addLifter()">+ Añadir Atleta</button>
+                </div>
+            </div>
+
+            <div class="op-card">
+                <h4>Inscritos (<span id="count-lifters">0</span>)</h4>
+                <ul id="list-registered" class="reg-list"></ul>
+            </div>
+
+            <button class="btn-start" onclick="startCompetition()">🚀 INICIAR COMPETENCIA</button>
+        </div>
+
+        <div id="phase-competition" class="hidden">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <h3 style="margin:0;">Control de Tarima</h3>
+                <button onclick="hardReset()" style="background:#333; color:white; border:none; padding:5px 10px; border-radius:4px;">Reset Total</button>
+            </div>
+
+            <div id="active-card" class="op-card lifter-highlight hidden">
+                <span style="background:#2563eb; color:white; padding:2px 8px; border-radius:4px; font-size:0.8rem;" id="op-attempt-info">Intento 1</span>
+                <h2 class="big-name" id="op-name">Nombre</h2>
+                <h1 class="big-weight" id="op-weight">00 kg</h1>
+                
+                <div class="btn-group">
+                    <button class="btn-lg btn-good" onclick="handleResult(true)">LOGRADO</button>
+                    <button class="btn-lg btn-bad" onclick="handleResult(false)">NO LOGRADO</button>
+                </div>
+            </div>
+
+            <div id="no-active-msg" class="op-card text-center hidden">
+                <h3>Competencia Finalizada</h3>
+                <p>Todos los atletas han completado sus intentos.</p>
+            </div>
+
+            <div class="op-card">
+                <h4>Orden de Salida:</h4>
+                <div id="op-queue-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="tv-view" class="hidden">
+        
+        <div class="tv-col">
+            <div class="tv-header" style="color:#60a5fa;">Ranking Hombres</div>
+            <div id="tv-rank-m" class="rank-list"></div>
+        </div>
+
+        <div class="tv-col">
+            <div class="tv-header" style="color:#f472b6;">Ranking Mujeres</div>
+            <div id="tv-rank-f" class="rank-list"></div>
+        </div>
+
+        <div class="tv-col">
+            <div class="tv-header" style="color:var(--gold);">En Tarima</div>
+            
+            <div id="tv-stage-area" class="stage-active hidden">
+                <div class="stage-label" id="tv-attempt-label">INTENTO 1</div>
+                <div class="stage-name" id="tv-active-name">NOMBRE</div>
+                <div class="stage-weight"><span id="tv-active-weight">00</span>kg</div>
+            </div>
+            <div id="tv-stage-empty" class="stage-active hidden" style="border-color:#333;">
+                <div class="stage-label">ESTADO</div>
+                <div class="stage-name">ESPERANDO</div>
+            </div>
+
+            <div style="background:#0f172a; padding:10px; border-top:2px solid #334155;">
+                <div style="color:#94a3b8; font-weight:bold; margin-bottom:10px;">PRÓXIMOS ATLETAS:</div>
+                <div id="tv-queue-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-next-weight" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h3 style="margin-top:0;">Próximo Intento</h3>
+            <p>Atleta: <strong><span id="mod-lifter-name"></span></strong></p>
+            <p style="font-size:0.9rem; color:#666;">Último peso: <span id="mod-last-weight">0</span>kg (Mínimo)</p>
+            
+            <input type="number" id="mod-input-weight" class="inp-weight">
+            
+            <div class="presets">
+                <button class="btn-pre" onclick="presetAdd(1)">+1 kg</button>
+                <button class="btn-pre" onclick="presetAdd(2)">+2 kg</button>
+                <button class="btn-pre" onclick="presetAdd(5)">+5 kg</button>
+            </div>
+
+            <button class="btn-start" onclick="confirmNextWeight()">CONFIRMAR PESO</button>
+        </div>
+    </div>
+
+    <script>
+        // === CONFIGURACIÓN ===
+        const DB_KEY = 'halterofilia_final_v3';
+        const STATE_KEY = 'halterofilia_state_v3';
+
+        // === INICIALIZACIÓN ===
+        function initMode(mode) {
+            document.getElementById('selector').classList.add('hidden');
+            if (mode === 'tv') {
+                document.getElementById('tv-view').classList.remove('hidden');
+                startAutoRefresh(); 
+            } else {
+                document.getElementById('operator-view').classList.remove('hidden');
+                refreshOperatorUI();
+            }
+            renderAll();
+        }
+
+        function getData() { return JSON.parse(localStorage.getItem(DB_KEY)) || []; }
+        function saveData(data) { localStorage.setItem(DB_KEY, JSON.stringify(data)); renderAll(); }
+        
+        function getState() { return JSON.parse(localStorage.getItem(STATE_KEY)) || { started: false }; }
+        function saveState(st) { localStorage.setItem(STATE_KEY, JSON.stringify(st)); refreshOperatorUI(); }
+
+        // === FASE 1: REGISTRO ===
+        function addLifter() {
+            const name = document.getElementById('reg-name').value;
+            const weight = parseInt(document.getElementById('reg-weight').value);
+            const gender = document.getElementById('reg-gender').value;
+
+            if (!name || !weight) return alert("Ingresa nombre y peso inicial");
+
+            const data = getData();
+            data.push({
+                id: Date.now(),
+                name, gender,
+                attempts: [
+                    { weight: weight, status: 'pending' }, 
+                    { weight: null, status: 'pending' }, 
+                    { weight: null, status: 'pending' }
+                ],
+                currentAttemptIndex: 0,
+                bestLift: 0,
+                finished: false
+            });
+            saveData(data);
+            
+            document.getElementById('reg-name').value = '';
+            document.getElementById('reg-weight').value = '';
+            refreshOperatorUI();
+        }
+
+        function startCompetition() {
+            const data = getData();
+            if (data.length === 0) return alert("Registra al menos un atleta");
+            if (confirm("¿Cerrar registros y comenzar la competencia?")) {
+                saveState({ started: true });
+            }
+        }
+
+        function hardReset() {
+            if (confirm("⚠️ ¿BORRAR TODO y volver al registro?")) {
+                localStorage.removeItem(DB_KEY);
+                localStorage.removeItem(STATE_KEY);
+                location.reload();
+            }
+        }
+
+        // === LÓGICA DE ORDENAMIENTO ===
+        function getSortedQueue(data) {
+            let active = data.filter(l => !l.finished);
+            return active.sort((a, b) => {
+                const wA = a.attempts[a.currentAttemptIndex].weight;
+                const wB = b.attempts[b.currentAttemptIndex].weight;
+                if (wA !== wB) return wA - wB; // Menor peso primero
+                if (a.currentAttemptIndex !== b.currentAttemptIndex) return a.currentAttemptIndex - b.currentAttemptIndex; // Intento 1 antes que 2
+                return a.id - b.id; // FIFO
+            });
+        }
+
+        // === FASE 2: COMPETENCIA (OPERADOR) ===
+        let tempLifterId = null;
+        let tempMinWeight = 0;
+
+        function handleResult(isGood) {
+            const data = getData();
+            const queue = getSortedQueue(data);
+            if (queue.length === 0) return;
+
+            const lifter = data.find(l => l.id === queue[0].id);
+            const idx = lifter.currentAttemptIndex;
+            const currentWeight = lifter.attempts[idx].weight;
+
+            // Guardar resultado
+            lifter.attempts[idx].status = isGood ? 'good' : 'bad';
+            if (isGood && currentWeight > lifter.bestLift) {
+                lifter.bestLift = currentWeight;
+            }
+
+            if (idx >= 2) {
+                lifter.finished = true;
+                saveData(data);
+            } else {
+                // Configurar validación "Igual o Mayor"
+                tempLifterId = lifter.id;
+                tempMinWeight = currentWeight; 
+
+                // Mostrar Modal:
+                // El input empieza con el peso actual (sin sumar 1) para comodidad del usuario
+                openNextWeightModal(lifter.name, currentWeight, currentWeight);
+                saveData(data); 
+            }
+        }
+
+        function openNextWeightModal(name, minW, initialValue) {
+            document.getElementById('modal-next-weight').classList.remove('hidden');
+            document.getElementById('mod-lifter-name').innerText = name;
+            document.getElementById('mod-last-weight').innerText = minW;
+            
+            const inp = document.getElementById('mod-input-weight');
+            inp.value = initialValue; // Se establece el valor inicial igual al anterior
+            inp.focus();
+        }
+
+        function presetAdd(val) {
+            const inp = document.getElementById('mod-input-weight');
+            let currentVal = parseInt(inp.value);
+            if (isNaN(currentVal)) currentVal = tempMinWeight;
+            
+            // Suma simple al valor que ya está en el input
+            inp.value = currentVal + val;
+        }
+
+        function confirmNextWeight() {
+            const val = parseInt(document.getElementById('mod-input-weight').value);
+            
+            // Validación simple: No bajar de peso
+            if (val < tempMinWeight) {
+                alert(`El peso no puede ser menor a ${tempMinWeight}kg (Regla: Igual o Mayor)`);
+                return;
+            }
+
+            const data = getData();
+            const lifter = data.find(l => l.id === tempLifterId);
+            
+            lifter.currentAttemptIndex++;
+            lifter.attempts[lifter.currentAttemptIndex].weight = val;
+            
+            saveData(data);
+            document.getElementById('modal-next-weight').classList.add('hidden');
+        }
+
+        // === RENDERIZADO UI ===
+        function refreshOperatorUI() {
+            const state = getState();
+            const regDiv = document.getElementById('phase-registration');
+            const compDiv = document.getElementById('phase-competition');
+
+            if (!state.started) {
+                regDiv.classList.remove('hidden');
+                compDiv.classList.add('hidden');
+                renderRegistrationList();
+            } else {
+                regDiv.classList.add('hidden');
+                compDiv.classList.remove('hidden');
+                renderCompetitionOperator();
+            }
+        }
+
+        function renderRegistrationList() {
+            const data = getData();
+            document.getElementById('count-lifters').innerText = data.length;
+            document.getElementById('list-registered').innerHTML = data.map(l => `
+                <li class="reg-item">
+                    <span><b>${l.name}</b> (${l.gender})</span>
+                    <span>Inicio: ${l.attempts[0].weight}kg</span>
+                </li>
+            `).join('');
+        }
+
+        function renderCompetitionOperator() {
+            const data = getData();
+            const queue = getSortedQueue(data);
+            const activeCard = document.getElementById('active-card');
+            const noActiveMsg = document.getElementById('no-active-msg');
+            const queueList = document.getElementById('op-queue-list');
+
+            if (queue.length > 0) {
+                activeCard.classList.remove('hidden');
+                noActiveMsg.classList.add('hidden');
+                
+                const current = queue[0];
+                document.getElementById('op-name').innerText = current.name;
+                document.getElementById('op-weight').innerText = current.attempts[current.currentAttemptIndex].weight + ' kg';
+                document.getElementById('op-attempt-info').innerText = `INTENTO ${current.currentAttemptIndex + 1}`;
+                
+                const nextOnes = queue.slice(1);
+                queueList.innerHTML = nextOnes.map(l => `
+                    <div class="queue-item">
+                        <span>${l.name}</span>
+                        <strong>${l.attempts[l.currentAttemptIndex].weight} kg</strong>
+                    </div>
+                `).join('');
+            } else {
+                activeCard.classList.add('hidden');
+                noActiveMsg.classList.remove('hidden');
+                queueList.innerHTML = '<p style="text-align:center; color:#999;">No hay atletas pendientes.</p>';
+            }
+        }
+
+        function renderAll() {
+            if (!document.getElementById('operator-view').classList.contains('hidden')) refreshOperatorUI();
+            if (!document.getElementById('tv-view').classList.contains('hidden')) renderTV();
+        }
+
+        // === RENDERIZADO TV ===
+        function renderTV() {
+            const data = getData();
+            const state = getState();
+            const sortedBest = [...data].sort((a,b) => b.bestLift - a.bestLift);
+            
+            const renderRank = (arr) => arr.map((l, i) => `
+                <div class="rank-row">
+                    <span class="rank-pos">${i+1}</span>
+                    <span class="rank-name">${l.name}</span>
+                    <span class="rank-val">${l.bestLift > 0 ? l.bestLift : '-'}</span>
+                </div>
+            `).join('');
+
+            document.getElementById('tv-rank-m').innerHTML = renderRank(sortedBest.filter(l => l.gender === 'M'));
+            document.getElementById('tv-rank-f').innerHTML = renderRank(sortedBest.filter(l => l.gender === 'F'));
+
+            const stageArea = document.getElementById('tv-stage-area');
+            const stageEmpty = document.getElementById('tv-stage-empty');
+            const queueList = document.getElementById('tv-queue-list');
+
+            if (!state.started) {
+                stageArea.classList.add('hidden');
+                stageEmpty.classList.remove('hidden');
+                stageEmpty.querySelector('.stage-name').innerText = "REGISTRO";
+                queueList.innerHTML = "<div style='text-align:center; color:#666; padding:20px;'>Esperando inicio...</div>";
+                return;
+            }
+
+            const queue = getSortedQueue(data);
+
+            if (queue.length > 0) {
+                const current = queue[0];
+                stageArea.classList.remove('hidden');
+                stageEmpty.classList.add('hidden');
+                document.getElementById('tv-active-name').innerText = current.name;
+                document.getElementById('tv-active-weight').innerText = current.attempts[current.currentAttemptIndex].weight;
+                document.getElementById('tv-attempt-label').innerText = `INTENTO ${current.currentAttemptIndex + 1}`;
+                
+                queueList.innerHTML = queue.slice(1, 6).map(l => `
+                    <div class="queue-row">
+                        <span>${l.name}</span>
+                        <span style="color:#fbbf24">${l.attempts[l.currentAttemptIndex].weight}</span>
+                    </div>
+                `).join('');
+            } else {
+                stageArea.classList.add('hidden');
+                stageEmpty.classList.remove('hidden');
+                stageEmpty.querySelector('.stage-name').innerText = "FINALIZADO";
+                queueList.innerHTML = "";
+            }
+        }
+
+        function startAutoRefresh() {
+            window.addEventListener('storage', () => { renderAll(); });
+            setInterval(() => renderAll(), 2000);
+        }
+
+        renderAll();
+    </script>
+</body>
+</html>
