@@ -14,7 +14,6 @@
     <link rel="manifest" id="dynamic-manifest">
 
     <script src="logos.js"></script>
-
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
@@ -29,13 +28,12 @@
         body { font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; padding: 0; background: var(--bg-dark); color: var(--text-main); height: 100vh; overflow: hidden; user-select: none; }
         .hidden { display: none !important; } .text-center { text-align: center; } .w-full { width: 100%; }
 
-        /* --- SELECTOR --- */
+        /* --- UI GENERAL --- */
         #selector { position: absolute; top:0; left:0; width:100%; height:100%; z-index:999; background: #000; display: flex; justify-content: center; align-items: center; gap: 20px; }
         .mode-btn { padding: 20px 40px; font-size: 1.5rem; cursor: pointer; border: none; border-radius: 8px; font-weight: bold; transition: transform 0.2s; }
         .mode-btn:hover { transform: scale(1.05); }
         .selector-footer { position: absolute; bottom: 30px; width: 100%; text-align: center; }
 
-        /* --- OPERADOR --- */
         #operator-view { background: var(--bg-dark); height: 100%; overflow-y: auto; padding: 15px; padding-bottom: 70px; box-sizing: border-box; position: relative; }
         
         input, select { background: var(--bg-input); color: white; border: 1px solid var(--border); padding: 12px; border-radius: 6px; width: 100%; box-sizing: border-box; font-size: 1.1rem; }
@@ -44,14 +42,24 @@
         .btn-add { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
         .btn-start { background: var(--success); color: white; padding: 15px; width: 100%; font-size: 1.2rem; font-weight: bold; border: none; border-radius: 8px; margin-top: 20px; cursor: pointer; }
         .btn-reset { background: #333; color: #aaa; border: 1px solid #444; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+        
+        /* Botones de Categoría */
+        .cat-btn { display: block; width: 100%; padding: 30px; margin: 10px 0; font-size: 1.5rem; font-weight: bold; border-radius: 12px; border: none; color: white; cursor: pointer; }
+        .cat-women { background: #ec4899; }
+        .cat-men { background: #3b82f6; }
 
         .op-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3); }
         .reg-list { list-style: none; padding: 0; margin-top: 20px; }
         .reg-item { background: var(--bg-input); padding: 10px; margin-bottom: 5px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border); }
 
-        .lifter-highlight { border: 2px solid var(--primary); background: #1e3a8a; text-align: center; }
+        .lifter-highlight { border: 2px solid var(--primary); background: #1e3a8a; text-align: center; position: relative; }
         .big-name { font-size: 1.8rem; font-weight: 800; margin: 0; color: white; }
+        
+        /* Contenedor Peso Editable */
+        .weight-edit-container { display: flex; align-items: center; justify-content: center; gap: 10px; }
         .big-weight { font-size: 3rem; font-weight: 900; color: var(--gold); margin: 5px 0; }
+        .btn-edit-weight { background: #475569; color: white; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 1.2rem; cursor: pointer; }
+
         .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
         .btn-lg { padding: 20px; font-size: 1.2rem; font-weight: bold; border: none; border-radius: 8px; color: white; cursor: pointer; }
         .btn-good { background: var(--success); color: #000; }
@@ -82,32 +90,22 @@
         .tv-footer .footer-logo { max-height: 40px; }
         .tv-footer .footer-container { font-size: 1.2rem; }
 
-        /* --- NUEVO MODAL ESTILO CALCULADORA --- */
+        /* --- MODAL --- */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: flex; justify-content: center; align-items: center; z-index: 2000; }
         .modal-content { background: var(--bg-card); padding: 20px; border-radius: 12px; width: 95%; max-width: 450px; text-align: center; border: 1px solid var(--border); }
         
-        /* Display Digital */
-        .weight-display-container {
-            background: #000; border: 2px solid var(--primary); border-radius: 8px; margin: 15px 0; padding: 15px;
-        }
+        .weight-display-container { background: #000; border: 2px solid var(--primary); border-radius: 8px; margin: 15px 0; padding: 15px; }
         .weight-display-val { font-size: 4rem; font-weight: 900; color: var(--gold); line-height: 1; display: block;}
         .weight-display-lbl { font-size: 1rem; color: #666; text-transform: uppercase; letter-spacing: 2px; }
 
-        /* Grilla de Botones */
         .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 20px; }
-        
-        .btn-calc { 
-            padding: 15px 5px; font-size: 1.3rem; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; color: white;
-            display: flex; justify-content: center; align-items: center;
-        }
+        .btn-calc { padding: 15px 5px; font-size: 1.3rem; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; color: white; display: flex; justify-content: center; align-items: center; }
         .btn-plus { background: #334155; border: 1px solid #475569; }
         .btn-plus:active { background: var(--success); transform: scale(0.95); }
-        
         .btn-minus { background: #1e293b; border: 1px solid #334155; color: #ef4444; }
         .btn-minus:active { background: #ef4444; color: white; transform: scale(0.95); }
         .btn-minus:disabled { opacity: 0.3; cursor: not-allowed; }
 
-        /* Texto informativo */
         .modal-info { color: var(--text-muted); margin-bottom: 5px; font-size: 1.1rem; }
     </style>
 </head>
@@ -125,8 +123,9 @@
     </div>
 
     <div id="operator-view" class="hidden">
-        <div id="phase-registration" style="margin-top: 10px;">
-            <h2 class="text-center" style="margin-top:0;">📋 Registro de Atletas</h2>
+        
+        <div id="phase-registration" class="hidden" style="margin-top: 10px;">
+            <h2 class="text-center" style="margin-top:0;">📋 Registro General</h2>
             <div class="op-card">
                 <div style="display:grid; gap:10px;">
                     <input type="text" id="reg-name" placeholder="Nombre del Atleta">
@@ -142,27 +141,46 @@
                 <h4 style="margin-top:0;">Inscritos (<span id="count-lifters" style="color:var(--primary)">0</span>)</h4>
                 <ul id="list-registered" class="reg-list"></ul>
             </div>
-            <button class="btn-start" onclick="startCompetition()">🚀 INICIAR</button>
+            <button class="btn-start" onclick="finishRegistration()">🏁 FINALIZAR REGISTROS</button>
+        </div>
+
+        <div id="phase-category" class="hidden" style="margin-top: 20px;">
+            <h2 class="text-center">Seleccionar Categoría</h2>
+            <p class="text-center" style="color:#aaa;">¿Quiénes competirán ahora?</p>
+            
+            <button class="cat-btn cat-women" onclick="setCategory('F')">MUJERES ♀</button>
+            <button class="cat-btn cat-men" onclick="setCategory('M')">HOMBRES ♂</button>
+            
+            <button class="btn-reset" style="width:100%; margin-top:20px;" onclick="backToRegistration()">⬅ Volver a Registro</button>
         </div>
 
         <div id="phase-competition" class="hidden" style="margin-top: 10px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                <h3 style="margin:0; color:var(--text-muted);">Control de Tarima</h3>
+                <h3 style="margin:0; color:var(--text-muted);">En Tarima: <span id="op-cat-badge" style="color:white;"></span></h3>
                 <button class="btn-reset" onclick="hardReset()">Reset Total</button>
             </div>
+            
             <div id="active-card" class="op-card lifter-highlight hidden">
                 <span style="background:var(--bg-dark); color:var(--text-muted); padding:2px 8px; border-radius:4px; font-size:0.8rem; border:1px solid var(--border);" id="op-attempt-info">Intento 1</span>
                 <h2 class="big-name" id="op-name">Nombre</h2>
-                <h1 class="big-weight" id="op-weight">00 kg</h1>
+                
+                <div class="weight-edit-container">
+                    <h1 class="big-weight" id="op-weight">00 kg</h1>
+                    <button class="btn-edit-weight" onclick="openEditCurrentWeightModal()">✏️</button>
+                </div>
+
                 <div class="btn-group">
                     <button class="btn-lg btn-good" onclick="handleResult(true)">LOGRADO</button>
                     <button class="btn-lg btn-bad" onclick="handleResult(false)">NO LOGRADO</button>
                 </div>
             </div>
+            
             <div id="no-active-msg" class="op-card text-center hidden">
-                <h3>Competencia Finalizada</h3>
-                <p style="color:var(--text-muted);">Todos los atletas han completado sus intentos.</p>
+                <h3>Categoría Finalizada</h3>
+                <p style="color:var(--text-muted);">Todos los atletas han terminado.</p>
+                <button class="btn-reset" style="margin-top:10px;" onclick="backToCategory()">Cambiar Categoría</button>
             </div>
+            
             <div class="op-card">
                 <h4 style="margin-top:0; color:var(--text-muted);">Siguientes:</h4>
                 <div id="op-queue-list"></div>
@@ -195,7 +213,7 @@
             </div>
             <div id="tv-stage-empty" class="stage-active hidden" style="border-color:#333;">
                 <div class="stage-label">ESTADO</div>
-                <div class="stage-name" style="color:#666;">ESPERANDO</div>
+                <div class="stage-name" id="tv-empty-msg" style="color:#666;">ESPERANDO</div>
             </div>
             <div style="background:var(--bg-dark); padding:10px; border-top:2px solid var(--border); flex:1;">
                 <div style="color:var(--text-muted); font-weight:bold; margin-bottom:10px; font-size:0.9rem;">PRÓXIMOS ATLETAS:</div>
@@ -212,7 +230,7 @@
 
     <div id="modal-next-weight" class="modal-overlay hidden">
         <div class="modal-content">
-            <h3 style="margin-top:0; color:white;">Próximo Intento</h3>
+            <h3 style="margin-top:0; color:white;" id="modal-title">Próximo Intento</h3>
             <p class="modal-info">Atleta: <strong><span id="mod-lifter-name" style="color:white;"></span></strong></p>
             
             <div class="weight-display-container">
@@ -234,7 +252,7 @@
                 <button class="btn-calc btn-minus" onclick="modifyWeight(-10)">-10</button>
             </div>
 
-            <button class="btn-start" onclick="confirmNextWeight()">CONFIRMAR PESO</button>
+            <button class="btn-start" onclick="triggerConfirm()">CONFIRMAR PESO</button>
         </div>
     </div>
 
@@ -251,15 +269,19 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        let localData = { athletes: [], started: false };
+        
+        // Estado local con nuevos campos: 'stage' (registration, category, competition) y 'activeGroup' (M/F)
+        let localData = { athletes: [], stage: 'registration', activeGroup: null };
 
         db.ref('competition').on('value', (snapshot) => {
             const val = snapshot.val();
             if (val) {
                 localData = val;
                 if(!localData.athletes) localData.athletes = [];
+                // Compatibilidad hacia atrás si faltan campos
+                if(!localData.stage) localData.stage = localData.started ? 'competition' : 'registration';
             } else {
-                localData = { athletes: [], started: false };
+                localData = { athletes: [], stage: 'registration', activeGroup: null };
             }
             renderAll();
         });
@@ -283,7 +305,7 @@
             }
         });
 
-        // === LÓGICA ===
+        // === LÓGICA DE NAVEGACIÓN Y DATOS ===
         function updateCloud() { db.ref('competition').set(localData); }
 
         function initMode(mode) {
@@ -309,18 +331,46 @@
             document.getElementById('reg-name').focus();
         }
 
-        function startCompetition() {
+        function finishRegistration() {
             if (localData.athletes.length === 0) return alert("Registra al menos un atleta");
-            if (confirm("¿Comenzar competencia?")) { localData.started = true; updateCloud(); }
+            if (confirm("¿Cerrar registros?")) { 
+                localData.stage = 'category'; // Pasamos a selección de categoría
+                updateCloud(); 
+            }
+        }
+        
+        function backToRegistration() {
+            if(confirm("¿Volver al registro?")) {
+                localData.stage = 'registration';
+                updateCloud();
+            }
+        }
+
+        function setCategory(gender) {
+            localData.activeGroup = gender;
+            localData.stage = 'competition';
+            updateCloud();
+        }
+
+        function backToCategory() {
+            localData.stage = 'category';
+            localData.activeGroup = null;
+            updateCloud();
         }
 
         function hardReset() {
             if (confirm("⚠️ ¿BORRAR TODO?")) { db.ref('competition').set(null); location.reload(); }
         }
 
+        // === FILTRO Y ORDENAMIENTO (Corazón del sistema) ===
         function getSortedQueue() {
             if(!localData.athletes) return [];
-            let active = localData.athletes.filter(l => !l.finished);
+            // Filtramos por estado (no finished) Y por el Grupo Activo (M o F)
+            let active = localData.athletes.filter(l => 
+                !l.finished && 
+                (localData.activeGroup ? l.gender === localData.activeGroup : true)
+            );
+            
             return active.sort((a, b) => {
                 const wA = a.attempts[a.currentAttemptIndex].weight;
                 const wB = b.attempts[b.currentAttemptIndex].weight;
@@ -330,11 +380,13 @@
             });
         }
 
-        // === VARIABLES MODAL CALCULADORA ===
+        // === VARIABLES Y LÓGICA DEL MODAL (DUAL) ===
         let tempLifterId = null;
-        let minAllowedWeight = 0; // El peso minimo (del intento anterior)
-        let currentModalWeight = 0; // El peso que se muestra en pantalla gigante
+        let minAllowedWeight = 0;
+        let currentModalWeight = 0;
+        let modalMode = 'NEXT'; // 'NEXT' (después de intento) o 'EDIT' (cambio táctico)
 
+        // Caso 1: Resultado del intento
         function handleResult(isGood) {
             const queue = getSortedQueue();
             if (queue.length === 0) return;
@@ -348,55 +400,71 @@
             if (idx >= 2) {
                 lifter.finished = true; updateCloud();
             } else {
-                // Preparamos datos para el modal
                 tempLifterId = lifter.id;
-                minAllowedWeight = currentWeight; // Regla: no bajar del peso actual
-                
-                // Abrimos modal iniciandolo con el mismo peso
-                updateCloud(); // Guardar el resultado parcial antes de abrir
-                openNextWeightModal(lifter.name, minAllowedWeight);
+                minAllowedWeight = currentWeight; // Regla general: no bajar
+                modalMode = 'NEXT';
+                updateCloud();
+                openModal(`Próximo Intento (${lifter.name})`, minAllowedWeight, minAllowedWeight); // Sugerir mismo peso
             }
         }
 
-        function openNextWeightModal(name, startWeight) {
-            document.getElementById('modal-next-weight').classList.remove('hidden');
-            document.getElementById('mod-lifter-name').innerText = name;
-            document.getElementById('mod-last-weight-display').innerText = startWeight;
+        // Caso 2: Editar peso actual (Cambio Táctico)
+        function openEditCurrentWeightModal() {
+            const queue = getSortedQueue();
+            if (queue.length === 0) return;
+            const lifter = localData.athletes.find(l => l.id === queue[0].id);
+            const currentWeight = lifter.attempts[lifter.currentAttemptIndex].weight;
             
-            // Iniciar variables de la calculadora
-            currentModalWeight = startWeight;
+            // Lógica de mínimo para editar:
+            // Si es intento 1, min = 0 (o peso base). Si es intento 2, min = peso intento 1.
+            // Para simplificar y dar libertad al operador: min = 0.
+            // Si quieren subir o bajar (siempre que sea legal), que lo hagan.
+            tempLifterId = lifter.id;
+            minAllowedWeight = 0; // Permitimos corregir libremente si se equivocaron
+            modalMode = 'EDIT';
+            
+            openModal(`Cambio Táctico (${lifter.name})`, minAllowedWeight, currentWeight);
+        }
+
+        function openModal(title, min, startVal) {
+            document.getElementById('modal-next-weight').classList.remove('hidden');
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('mod-lifter-name').innerText = ""; // Ya está en el título
+            document.getElementById('mod-last-weight-display').innerText = min;
+            currentModalWeight = startVal;
             updateWeightDisplay();
         }
 
         function modifyWeight(amount) {
             const newVal = currentModalWeight + amount;
-            // VALIDACIÓN: No permitir bajar del mínimo
             if (newVal < minAllowedWeight) return; 
-            
             currentModalWeight = newVal;
             updateWeightDisplay();
         }
 
         function updateWeightDisplay() {
             document.getElementById('display-val').innerText = currentModalWeight;
-            
-            // Deshabilitar visualmente botones de resta si estamos en el limite
             const minusBtns = document.querySelectorAll('.btn-minus');
             minusBtns.forEach(btn => {
-                // Miramos el valor del botón (ej -1, -5)
-                // Obtenemos el numero del onclick attribute es un poco hacky, mejor logica directa:
-                // Simplemente si current <= minAllowed, deshabilitamos todos los minus por estética
                 if (currentModalWeight <= minAllowedWeight) btn.disabled = true;
                 else btn.disabled = false;
             });
         }
 
-        function confirmNextWeight() {
-            // Ya tenemos currentModalWeight validado
+        // El botón del modal llama a esto
+        function triggerConfirm() {
             const lifter = localData.athletes.find(l => l.id === tempLifterId);
-            lifter.currentAttemptIndex++;
-            lifter.attempts[lifter.currentAttemptIndex].weight = currentModalWeight;
-            updateCloud();
+            
+            if (modalMode === 'NEXT') {
+                // Avanzar al siguiente intento
+                lifter.currentAttemptIndex++;
+                lifter.attempts[lifter.currentAttemptIndex].weight = currentModalWeight;
+            } else {
+                // Editar el intento ACTUAL (Cambio táctico)
+                lifter.attempts[lifter.currentAttemptIndex].weight = currentModalWeight;
+            }
+            
+            updateCloud(); // Al guardar, Firebase avisa y getSortedQueue REORDENA automáticamente
             document.getElementById('modal-next-weight').classList.add('hidden');
         }
 
@@ -410,12 +478,20 @@
 
         function refreshOperatorUI() {
             const regDiv = document.getElementById('phase-registration');
+            const catDiv = document.getElementById('phase-category');
             const compDiv = document.getElementById('phase-competition');
-            if (!localData.started) {
-                regDiv.classList.remove('hidden'); compDiv.classList.add('hidden');
+            
+            regDiv.classList.add('hidden');
+            catDiv.classList.add('hidden');
+            compDiv.classList.add('hidden');
+
+            if (localData.stage === 'registration') {
+                regDiv.classList.remove('hidden');
                 renderRegistrationList();
-            } else {
-                regDiv.classList.add('hidden'); compDiv.classList.remove('hidden');
+            } else if (localData.stage === 'category') {
+                catDiv.classList.remove('hidden');
+            } else { // competition
+                compDiv.classList.remove('hidden');
                 renderCompetitionOperator();
             }
         }
@@ -429,10 +505,15 @@
         }
 
         function renderCompetitionOperator() {
+            // Mostrar categoría activa
+            const catName = localData.activeGroup === 'F' ? "MUJERES" : "HOMBRES";
+            document.getElementById('op-cat-badge').innerText = catName;
+
             const queue = getSortedQueue();
             const activeCard = document.getElementById('active-card');
             const noActiveMsg = document.getElementById('no-active-msg');
             const queueList = document.getElementById('op-queue-list');
+            
             if (queue.length > 0) {
                 activeCard.classList.remove('hidden'); noActiveMsg.classList.add('hidden');
                 const current = queue[0];
@@ -444,7 +525,7 @@
                 `).join('');
             } else {
                 activeCard.classList.add('hidden'); noActiveMsg.classList.remove('hidden');
-                queueList.innerHTML = '<p style="text-align:center; color:#666;">No hay atletas pendientes.</p>';
+                queueList.innerHTML = '';
             }
         }
 
@@ -456,15 +537,25 @@
             `).join('');
             document.getElementById('tv-rank-m').innerHTML = renderRank(sortedBest.filter(l => l.gender === 'M'));
             document.getElementById('tv-rank-f').innerHTML = renderRank(sortedBest.filter(l => l.gender === 'F'));
+            
             const stageArea = document.getElementById('tv-stage-area');
             const stageEmpty = document.getElementById('tv-stage-empty');
             const queueList = document.getElementById('tv-queue-list');
-            if (!localData.started) {
+            
+            // TV Logic: Depende de la etapa
+            if (localData.stage === 'registration') {
                 stageArea.classList.add('hidden'); stageEmpty.classList.remove('hidden');
-                stageEmpty.querySelector('.stage-name').innerText = "REGISTRO";
-                queueList.innerHTML = "<div style='text-align:center; color:#666; padding:20px;'>Esperando inicio...</div>";
+                document.getElementById('tv-empty-msg').innerText = "REGISTRO DE ATLETAS";
+                queueList.innerHTML = "";
+                return;
+            } else if (localData.stage === 'category') {
+                stageArea.classList.add('hidden'); stageEmpty.classList.remove('hidden');
+                document.getElementById('tv-empty-msg').innerText = "SELECCIONANDO CATEGORÍA...";
+                queueList.innerHTML = "";
                 return;
             }
+
+            // Etapa Competencia: Usamos la cola filtrada por el operador
             const queue = getSortedQueue();
             if (queue.length > 0) {
                 const current = queue[0];
@@ -477,7 +568,7 @@
                 `).join('');
             } else {
                 stageArea.classList.add('hidden'); stageEmpty.classList.remove('hidden');
-                stageEmpty.querySelector('.stage-name').innerText = "FINALIZADO";
+                document.getElementById('tv-empty-msg').innerText = "CATEGORÍA FINALIZADA";
                 queueList.innerHTML = "";
             }
         }
